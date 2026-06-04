@@ -41,12 +41,11 @@ A fixed base station with its own RFID token. Players scan this token at the sta
 
 The Hive team has a physical printed table — one per bloom window (see [Bloom Windows](#bloom-windows) and [flower-maps.md](flower-maps.md)). Each table has one row per flower, with columns:
 
-| Coordinate | Flower | Colour | Petals | Press button | Deliver to |
-|---|---|---|---|---|---|
-| B3 | Tulip | Blue | 5 | Red | D1 |
-| … | … | … | … | … | … |
+**Table 1 — Location**: flower name + colour → grid coordinates (where to collect from, where to deliver to).
 
-The table encodes the complete game sequence. Given the current flower (identified by type + colour + petal count), the Hive team can look up which button the bee-carrier should press **and** — once pollen is collected — which coordinate to shout for the **delivery** flower (the next flower of the same type).
+**Table 2 — Button**: a 4×4 grid of flower type × petal count → button colour. The child shouts both the flower name and the petal count; the Hive cross-references both to find the button.
+
+Together the two tables encode the complete game sequence for each bloom window.
 
 ---
 
@@ -69,8 +68,8 @@ Each turn belongs to one player; players take turns holding the Bee. A turn has 
   Kid scans flower RFID
     Wrong flower  → VENUS FLY TRAP (see below)
     Correct flower → Device shows: flower name, colour, petal count
-      → Kid shouts the petal count back to the Hive
-      → Hive looks up the row in the table → shouts the coloured button
+      → Kid shouts the flower name and petal count back to the Hive
+      → Hive looks up flower + petals in Table 2 → shouts the coloured button
 
 [Kid presses button]
   Correct button → POLLEN COLLECTED
@@ -83,8 +82,8 @@ Each turn belongs to one player; players take turns holding the Bee. A turn has 
   Kid scans flower RFID
     Wrong flower  → VENUS FLY TRAP (see below)
     Correct flower → Device shows: flower name, colour, petal count
-      → Kid shouts the petal count back to the Hive
-      → Hive looks up the row in the table → shouts the coloured button
+      → Kid shouts the flower name and petal count back to the Hive
+      → Hive looks up flower + petals in Table 2 → shouts the coloured button
 
 [Kid presses button]
   Correct button → POLLEN DELIVERED
@@ -192,9 +191,9 @@ Shown after the correct flower is scanned. Same layout for both stages.
 │  You found:                  │
 │                              │
 │    🌷 Blue Tulip             │
-│    Petals: 5                 │
+│    Petals: 3                 │
 │                              │
-│  Shout the petal count!      │
+│  Shout flower name & petals! │
 │  Pollinated: 3 | Eaten: 1    │
 └──────────────────────────────┘
 ```
@@ -287,7 +286,7 @@ Bloom windows remap flower **identities**: the physical RFID tokens never move, 
 | Midday    | 3:00 – 6:00 | Sunflower, Marigold, Rose, Lavender |
 | Afternoon | 6:00 – end  | Dahlia, Foxglove, Buttercup, Clover |
 
-Each window also has its own **petal encoding** (see below) — the mapping from random petal count to button — so the Hive's button lookup changes each window too.
+Each window also has its own **petal encoding** (see below) — a 2D table mapping flower type × random petal count to button — so the Hive's button lookup changes each window too.
 
 When the bloom window changes:
 - The device silently switches to the new map's lookup data
@@ -302,8 +301,8 @@ Each bloom window has its own printed reference table, labelled clearly with the
 
 ```python
 # One entry per flower in the current bloom window's map.
-# No correct_button here — the button is determined at scan time from a
-# random petal count (1–5) looked up in the window's petal_encoding.
+# No correct_button here — the button is determined at scan time via
+# petal_encoding[flower_name][random_petal_count], where count is 1–4.
 flower_map = {
     "<rfid_uid>": {
         "name": "Tulip",          # flower type / species
@@ -316,27 +315,21 @@ flower_map = {
 
 hive_uid = "<rfid_uid>"
 
-# Bloom windows — each has its own flower set and petal→button encoding.
-# petal_encoding: random count (1–5) shown by device → button to press.
+# Bloom windows — each has its own flower set and petal encoding.
+# petal_encoding[flower_name][petal_count] → button to press.
+# petal_count is randomly generated 1–4 at each flower scan.
 bloom_windows = [
     {
         "name": "Morning",
         "start_seconds": 0,
         "map": flower_map_morning,
-        "petal_encoding": {1: "Red", 2: "Blue", 3: "Yellow", 4: "Green", 5: "Red"},
+        "petal_encoding": {
+            "Tulip":    {1: "Red",    2: "Blue",   3: "Yellow", 4: "Green"},
+            "Daisy":    {1: "Blue",   2: "Yellow", 3: "Green",  4: "Red"},
+            # ... (see flower-maps.md for full data)
+        },
     },
-    {
-        "name": "Midday",
-        "start_seconds": 180,
-        "map": flower_map_midday,
-        "petal_encoding": {1: "Yellow", 2: "Green", 3: "Red", 4: "Blue", 5: "Yellow"},
-    },
-    {
-        "name": "Afternoon",
-        "start_seconds": 360,
-        "map": flower_map_afternoon,
-        "petal_encoding": {1: "Blue", 2: "Yellow", 3: "Green", 4: "Red", 5: "Blue"},
-    },
+    ...
 ]
 
 game_duration_seconds = 600  # 10 minutes total

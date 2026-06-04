@@ -35,7 +35,7 @@ Scan each physical token once and fill in the UIDs below before the game is used
 Each bloom window has **two tables** on its printed sheet:
 
 - **Table 1 — Location**: the Hive looks up the flower name + colour the device shows, to find where the kid should go and where they deliver to.
-- **Table 2 — Button**: when the kid shouts a petal count, the Hive looks up the number to find which button to press. Petal counts are **randomly generated** by the device each time a flower is scanned — they are not fixed. Table 2 changes each window, so the Hive must use the correct sheet.
+- **Table 2 — Button**: when the kid shouts the flower name and petal count, the Hive cross-references both in a grid to find which button to press. Petal counts are **randomly generated** (1–4) by the device each time a flower is scanned — they are not fixed. Table 2 changes each window, so the Hive must use the correct sheet.
 
 ---
 
@@ -79,15 +79,14 @@ D │ Green Tulip  │ Green Daisy  │ Green Poppy  │Grn Bluebell  │
 | Tulip    | Red    | A1 | B1 |
 | Tulip    | Yellow | C1 | D1 |
 
-### Table 2 — Button *(kid shouts a number, Hive finds the button)*
+### Table 2 — Button *(kid shouts flower name + petal count, Hive finds the button)*
 
-| Petals | Press |
-|---|---|
-| 1 | **Red** |
-| 2 | **Blue** |
-| 3 | **Yellow** |
-| 4 | **Green** |
-| 5 | **Red** |
+| Flower↓ \ Petals→ | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|
+| Tulip    | **Red**    | **Blue**   | **Yellow** | **Green**  |
+| Daisy    | **Blue**   | **Yellow** | **Green**  | **Red**    |
+| Poppy    | **Yellow** | **Green**  | **Red**    | **Blue**   |
+| Bluebell | **Green**  | **Red**    | **Blue**   | **Yellow** |
 
 ---
 
@@ -131,15 +130,14 @@ D │Yel Sunflower │Yel Marigold  │ Yellow Rose  │Yel Lavender  │
 | Sunflower | Red    | C1 | D1 |
 | Sunflower | Yellow | D1 | A1 |
 
-### Table 2 — Button
+### Table 2 — Button *(kid shouts flower name + petal count, Hive finds the button)*
 
-| Petals | Press |
-|---|---|
-| 1 | **Yellow** |
-| 2 | **Green** |
-| 3 | **Red** |
-| 4 | **Blue** |
-| 5 | **Yellow** |
+| Flower↓ \ Petals→ | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|
+| Sunflower | **Yellow** | **Green**  | **Red**    | **Blue**   |
+| Marigold  | **Green**  | **Red**    | **Blue**   | **Yellow** |
+| Rose      | **Red**    | **Blue**   | **Yellow** | **Green**  |
+| Lavender  | **Blue**   | **Yellow** | **Green**  | **Red**    |
 
 ---
 
@@ -183,21 +181,20 @@ D │ Blue Dahlia  │Blue Foxglove │Blue Buttercup│  Blue Clover │
 | Foxglove  | Red    | B2 | C2 |
 | Foxglove  | Yellow | A2 | B2 |
 
-### Table 2 — Button
+### Table 2 — Button *(kid shouts flower name + petal count, Hive finds the button)*
 
-| Petals | Press |
-|---|---|
-| 1 | **Blue** |
-| 2 | **Yellow** |
-| 3 | **Green** |
-| 4 | **Red** |
-| 5 | **Blue** |
+| Flower↓ \ Petals→ | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|
+| Dahlia    | **Blue**   | **Yellow** | **Green**  | **Red**    |
+| Foxglove  | **Yellow** | **Green**  | **Red**    | **Blue**   |
+| Buttercup | **Green**  | **Red**    | **Blue**   | **Yellow** |
+| Clover    | **Red**    | **Blue**   | **Yellow** | **Green**  |
 
 ---
 
 ## Python Data
 
-Replace `UID_XX` values with real scanned UIDs. `next_uid` is the delivery target (same type, different colour). The button to press is **not stored per flower** — it is determined at runtime from the random petal count using `petal_encoding`.
+Replace `UID_XX` values with real scanned UIDs. `next_uid` is the delivery target (same type, different colour). The button to press is **not stored per flower** — it is determined at runtime from `petal_encoding[flower_name][petal_count]`, where petal count is randomly generated (1–4) at each scan.
 
 ```python
 flower_map_morning = {
@@ -264,20 +261,36 @@ bloom_windows = [
         "name": "Morning",
         "start_seconds": 0,
         "map": flower_map_morning,
-        # petal count (random 1-5 per scan) → button to press
-        "petal_encoding": {1: "Red", 2: "Blue", 3: "Yellow", 4: "Green", 5: "Red"},
+        # petal_encoding[flower_name][petal_count] → button to press
+        # petal count is randomly generated 1–4 at each flower scan
+        "petal_encoding": {
+            "Tulip":    {1: "Red",    2: "Blue",   3: "Yellow", 4: "Green"},
+            "Daisy":    {1: "Blue",   2: "Yellow", 3: "Green",  4: "Red"},
+            "Poppy":    {1: "Yellow", 2: "Green",  3: "Red",    4: "Blue"},
+            "Bluebell": {1: "Green",  2: "Red",    3: "Blue",   4: "Yellow"},
+        },
     },
     {
         "name": "Midday",
         "start_seconds": 180,
         "map": flower_map_midday,
-        "petal_encoding": {1: "Yellow", 2: "Green", 3: "Red", 4: "Blue", 5: "Yellow"},
+        "petal_encoding": {
+            "Sunflower": {1: "Yellow", 2: "Green",  3: "Red",    4: "Blue"},
+            "Marigold":  {1: "Green",  2: "Red",    3: "Blue",   4: "Yellow"},
+            "Rose":      {1: "Red",    2: "Blue",   3: "Yellow", 4: "Green"},
+            "Lavender":  {1: "Blue",   2: "Yellow", 3: "Green",  4: "Red"},
+        },
     },
     {
         "name": "Afternoon",
         "start_seconds": 360,
         "map": flower_map_afternoon,
-        "petal_encoding": {1: "Blue", 2: "Yellow", 3: "Green", 4: "Red", 5: "Blue"},
+        "petal_encoding": {
+            "Dahlia":     {1: "Blue",   2: "Yellow", 3: "Green",  4: "Red"},
+            "Foxglove":   {1: "Yellow", 2: "Green",  3: "Red",    4: "Blue"},
+            "Buttercup":  {1: "Green",  2: "Red",    3: "Blue",   4: "Yellow"},
+            "Clover":     {1: "Red",    2: "Blue",   3: "Yellow", 4: "Green"},
+        },
     },
 ]
 

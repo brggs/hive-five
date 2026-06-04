@@ -18,14 +18,19 @@ All components share the Badger2040 I2C bus: SDA=GPIO4, SCL=GPIO5.
 
 ```
 src/
-├── main.py        — game loop entry point; owns I2C setup, BUTTONS config
+├── main.py        — entry point; I2C + hardware setup, BUTTONS, the polling loop
+├── game.py        — Game class: state machine + scoring (no hardware imports)
+├── game_data.py   — flower maps, bloom_windows, hive_uid, game_duration_seconds
 ├── mcp23017.py    — MCP23017 class: read_port_b()
 ├── pn532.py       — PN532 class: init(), read_passive_target()
-├── display.py     — Display class: show_message(), show_idle()
-└── tests.py       — standalone Badger built-in button test (not part of game)
+├── display.py     — Display class: text-only screen methods (one per game screen)
+└── tests.py       — desktop unit tests for game.py (run: python3 src/tests.py)
 ```
 
-Instantiate hardware in `main.py`, pass nothing — each class takes `i2c` in its constructor.
+Instantiate hardware in `main.py`, pass nothing — each class takes `i2c` in its
+constructor. `game.py` is pure logic (imports only `random`) so it runs and is
+testable on desktop CPython; `main.py` wires hardware events into it and renders
+`Game.view()`.
 
 ## Game State Machine
 
@@ -46,37 +51,24 @@ Any state → GAME_OVER on timer expiry
 ```
 
 - Target screens show the current bloom window; the collect target is random,
-  the deliver target is fixed by `next_rfid` (same type, different colour).
+  the deliver target is fixed by `next_uid` (same type, different colour).
 - **Pollinated** increments on successful delivery only; **Eaten** combines
   spiders and venus fly traps.
 
 ## Data Model
 
-```python
-flower_map = {
-    "<rfid_uid>": {
-        "name": "Tulip",
-        "colour": "Blue",
-        "petals": 5,
-        # no correct_button — determined at scan time from random petal count
-        "next_uid": "<rfid_uid>",  # deliver target: same type, different colour
-        "coordinate": "B3",        # grid label for printed table
-    },
-}
+Game data lives in [src/game_data.py](src/game_data.py); the authoritative spec
+is [docs/flower-maps.md](docs/flower-maps.md) and [docs/design.md](docs/design.md).
+Keep those in sync — don't duplicate the data here.
 
-hive_uid = "<rfid_uid>"
-
-# Each window has its own flower types and petal→button encoding.
-# petal_encoding: random count (1–5) shown on device → button to press.
-bloom_windows = [
-    {"name": "Morning",   "start_seconds": 0,   "map": flower_map_morning,
-     "petal_encoding": {1: "Red", 2: "Blue", 3: "Yellow", 4: "Green", 5: "Red"}},
-    {"name": "Midday",    "start_seconds": 180, "map": flower_map_midday,
-     "petal_encoding": {1: "Yellow", 2: "Green", 3: "Red", 4: "Blue", 5: "Yellow"}},
-    {"name": "Afternoon", "start_seconds": 360, "map": flower_map_afternoon,
-     "petal_encoding": {1: "Blue", 2: "Yellow", 3: "Green", 4: "Red", 5: "Blue"}},
-]
-```
+Key points the code relies on:
+- Each `flower_map` entry has `name`, `colour`, `coordinate`, and `next_uid`
+  (the deliver target — same type, different colour). Petal count is **not**
+  stored: it is a random integer **1–4** generated at each flower scan.
+- The button to press is resolved at scan time from
+  `petal_encoding[flower_name][petal_count]` — a **per-flower-type** 2D table
+  that differs per bloom window (`bloom_windows`, each with `name`,
+  `start_seconds`, `map`, `petal_encoding`).
 
 ## Runtime Notes
 

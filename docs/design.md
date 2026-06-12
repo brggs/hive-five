@@ -28,7 +28,7 @@ Flowers are arranged in a 4×4 grid. Each position is labelled with a coordinate
 
 Each flower has three properties:
 - **Type**: one of four types (e.g. Rose, Tulip, Dahlia, Sunflower — exact names TBD)
-- **Colour**: Red, Blue, Yellow, or Green
+- **Colour**: Red, Blue, Yellow, or Orange (flower colour, distinct from button colours)
 - **Petal count**: a small integer, unique enough within the table to disambiguate rows
 
 Each RFID token encodes a **flower ID** that the device maps to these properties.

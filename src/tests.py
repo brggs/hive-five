@@ -14,6 +14,21 @@ from game import Game
 import game_data
 
 
+def _uid_at(coordinate):
+    """Real token UID for a grid coordinate, so tests don't hardcode hex UIDs."""
+    for uid, flower in game_data.flower_map_morning.items():
+        if flower["coordinate"] == coordinate:
+            return uid
+    raise KeyError(coordinate)
+
+
+# Symbolic handles for the physical tokens used by the tests.
+A1       = _uid_at("A1")                              # Morning: Red Tulip
+A1_NEXT  = game_data.flower_map_morning[A1]["next_uid"]  # Morning: Orange Tulip — A1's deliver target
+C3       = _uid_at("C3")                              # Morning: Blue Tulip (wrong flower, never the test target)
+D2       = _uid_at("D2")                              # Morning: Red Poppy
+
+
 class FakeRng:
     """Deterministic stand-in for the `random` module.
 
@@ -21,7 +36,7 @@ class FakeRng:
     sequence), and randint() returns `randint_value`.
     """
 
-    def __init__(self, choice_value="UID_A1", randint_value=1):
+    def __init__(self, choice_value=A1, randint_value=1):
         self.choice_value = choice_value
         self.randint_value = randint_value
 
@@ -60,15 +75,15 @@ def check(cond, msg):
 
 def test_happy_path():
     print("test_happy_path")
-    rng = FakeRng(choice_value="UID_A1", randint_value=1)  # Red Tulip, petals=1 -> Red
+    rng = FakeRng(choice_value=A1, randint_value=1)  # Red Tulip, petals=1 -> Red
     g = new_game(rng)
 
     g.on_hive_scan(0.0)
     check(g.state == game.SHOWING_COLLECT_TARGET, "hive scan shows collect target")
-    check(g.collect_uid == "UID_A1", "collect target is the chosen flower")
-    check(g.deliver_uid == "UID_B1", "deliver target is next_uid (same type, diff colour)")
+    check(g.collect_uid == A1, "collect target is the chosen flower")
+    check(g.deliver_uid == A1_NEXT, "deliver target is next_uid (same type, diff colour)")
 
-    g.on_flower_scan("UID_A1", 1.0)
+    g.on_flower_scan(A1, 1.0)
     check(g.state == game.SHOWING_COLLECT_INFO, "correct collect flower -> info")
     check(g.correct_button == "Red", "Morning Tulip petals=1 resolves to Red")
 
@@ -77,7 +92,7 @@ def test_happy_path():
     g.tick(2.0 + game.SUCCESS_DWELL_SECONDS)
     check(g.state == game.SHOWING_DELIVER_TARGET, "after dwell -> deliver target")
 
-    g.on_flower_scan("UID_B1", 6.0)
+    g.on_flower_scan(A1_NEXT, 6.0)
     check(g.state == game.SHOWING_DELIVER_INFO, "correct deliver flower -> info")
 
     g.on_button("Red", 7.0)
@@ -90,12 +105,12 @@ def test_happy_path():
 
 def test_wrong_button_spider():
     print("test_wrong_button_spider")
-    rng = FakeRng(choice_value="UID_A1", randint_value=1)  # correct = Red
+    rng = FakeRng(choice_value=A1, randint_value=1)  # correct = Red
     g = new_game(rng)
     g.on_hive_scan(0.0)
-    g.on_flower_scan("UID_A1", 1.0)
+    g.on_flower_scan(A1, 1.0)
 
-    g.on_button("Green", 2.0)  # wrong
+    g.on_button("Orange", 2.0)  # wrong
     check(g.state == game.SPIDER, "wrong button -> spider")
     check(g.eaten == 1, "spider increments eaten")
     check(g.pollinated == 0, "spider does not score")
@@ -106,11 +121,11 @@ def test_wrong_button_spider():
 
 def test_wrong_flower_venus():
     print("test_wrong_flower_venus")
-    rng = FakeRng(choice_value="UID_A1")
+    rng = FakeRng(choice_value=A1)
     g = new_game(rng)
     g.on_hive_scan(0.0)
 
-    g.on_flower_scan("UID_C3", 1.0)  # a real flower, but not the target
+    g.on_flower_scan(C3, 1.0)  # a real flower, but not the target
     check(g.state == game.VENUS_FLY_TRAP, "wrong flower -> venus fly trap")
     check(g.eaten == 1, "venus increments eaten")
     g.tick(1.0 + game.FAILURE_DWELL_SECONDS)
@@ -119,7 +134,7 @@ def test_wrong_flower_venus():
 
 def test_unknown_and_hive_scans_ignored_midturn():
     print("test_unknown_and_hive_scans_ignored_midturn")
-    rng = FakeRng(choice_value="UID_A1")
+    rng = FakeRng(choice_value=A1)
     g = new_game(rng)
     g.on_hive_scan(0.0)
 
@@ -132,22 +147,22 @@ def test_unknown_and_hive_scans_ignored_midturn():
 
 def test_hive_rerandomises_target():
     print("test_hive_rerandomises_target")
-    rng = FakeRng(choice_value="UID_A1")
+    rng = FakeRng(choice_value=A1)
     g = new_game(rng)
     g.on_hive_scan(0.0)
-    check(g.collect_uid == "UID_A1", "first target chosen")
+    check(g.collect_uid == A1, "first target chosen")
 
     # Fail the turn, return to waiting, then a new target is drawn on next scan.
-    g.on_flower_scan("UID_C3", 1.0)
+    g.on_flower_scan(C3, 1.0)
     g.tick(1.0 + game.FAILURE_DWELL_SECONDS)
-    rng.choice_value = "UID_D2"
+    rng.choice_value = D2
     g.on_hive_scan(10.0)
-    check(g.collect_uid == "UID_D2", "fresh random target after reset")
+    check(g.collect_uid == D2, "fresh random target after reset")
 
 
 def test_bloom_window_boundary():
     print("test_bloom_window_boundary")
-    rng = FakeRng(choice_value="UID_A1", randint_value=1)
+    rng = FakeRng(choice_value=A1, randint_value=1)
     g = new_game(rng)
 
     # Turn starts in the Morning window (t=0).
@@ -155,12 +170,12 @@ def test_bloom_window_boundary():
     check(g.turn_window["name"] == "Morning", "turn starts in Morning")
 
     # Time crosses into Midday (start 180s) mid-turn; the turn keeps its map.
-    g.on_flower_scan("UID_A1", 200.0)
+    g.on_flower_scan(A1, 200.0)
     check(g.turn_window["name"] == "Morning", "in-progress turn stays on Morning map")
     check(g.correct_button == "Red", "uses Morning encoding (Tulip p1 = Red)")
     g.on_button("Red", 201.0)
     g.tick(201.0 + game.SUCCESS_DWELL_SECONDS)
-    g.on_flower_scan("UID_B1", 205.0)
+    g.on_flower_scan(A1_NEXT, 205.0)
     g.on_button(g.correct_button, 206.0)
     g.tick(206.0 + game.SUCCESS_DWELL_SECONDS)
     check(g.state == game.WAITING_FOR_HIVE_SCAN, "turn completes")
@@ -168,12 +183,12 @@ def test_bloom_window_boundary():
     # Next turn (still t>=180) draws from the Midday map.
     g.on_hive_scan(210.0)
     check(g.turn_window["name"] == "Midday", "next turn uses Midday map")
-    check(g.turn_window["map"]["UID_A1"]["name"] == "Sunflower", "Midday remaps the token")
+    check(g.turn_window["map"][A1]["name"] == "Sunflower", "Midday remaps the token")
 
 
 def test_timer_expiry_game_over():
     print("test_timer_expiry_game_over")
-    rng = FakeRng(choice_value="UID_A1")
+    rng = FakeRng(choice_value=A1)
     g = new_game(rng)
     g.on_hive_scan(0.0)
     g.tick(game_data.game_duration_seconds)  # exactly at expiry

@@ -4,6 +4,8 @@ Three bloom windows, each with its own set of 4 flower types (loosely themed to 
 
 **4 types × 4 colours = 16 unique flowers per window.**
 
+Each window uses a scattered layout: every row and every column contains all 4 flower types and all 4 colours. No two positions in the same row or column share a type or colour, so kids cannot predict the grid without the reference table, and delivery paths scatter diagonally across the grid rather than staying in the same column.
+
 | Window | Flower types |
 |---|---|
 | Morning   | Tulip, Daisy, Poppy, Bluebell |
@@ -14,19 +16,19 @@ Three bloom windows, each with its own set of 4 flower types (loosely themed to 
 
 ## Token UIDs
 
-Scan each physical token once and fill in the UIDs below before the game is used.
+Scanned 2026-06-05. These are the real hardware UIDs — edit `token_uids` in `src/game_data.py` if tokens are ever re-scanned.
 
 | Position | UID | Position | UID |
 |---|---|---|---|
-| A1 | `UID_A1` | C1 | `UID_C1` |
-| A2 | `UID_A2` | C2 | `UID_C2` |
-| A3 | `UID_A3` | C3 | `UID_C3` |
-| A4 | `UID_A4` | C4 | `UID_C4` |
-| B1 | `UID_B1` | D1 | `UID_D1` |
-| B2 | `UID_B2` | D2 | `UID_D2` |
-| B3 | `UID_B3` | D3 | `UID_D3` |
-| B4 | `UID_B4` | D4 | `UID_D4` |
-| Hive | `UID_HIVE` | | |
+| A1 | `00:07:04:4D:A4:98:CA:2A:81` | C1 | `00:07:04:44:A4:98:CA:2A:81` |
+| A2 | `00:07:04:4F:A4:98:CA:2A:81` | C2 | `00:07:04:36:A4:98:CA:2A:81` |
+| A3 | `00:07:04:4E:A4:98:CA:2A:81` | C3 | `00:07:04:45:A4:98:CA:2A:81` |
+| A4 | `00:07:04:47:A4:98:CA:2A:81` | C4 | `00:07:04:3B:A4:98:CA:2A:81` |
+| B1 | `00:07:04:3D:A4:98:CA:2A:81` | D1 | `00:07:04:46:A4:98:CA:2A:81` |
+| B2 | `00:07:04:34:A4:98:CA:2A:81` | D2 | `00:07:04:3C:A4:98:CA:2A:81` |
+| B3 | `00:07:04:35:A4:98:CA:2A:81` | D3 | `00:07:04:2B:A4:98:CA:2A:81` |
+| B4 | `00:07:04:3E:A4:98:CA:2A:81` | D4 | `00:07:04:2A:A4:98:CA:2A:81` |
+| Hive | `00:07:04:2C:A4:98:CA:2A:81` | | |
 
 ---
 
@@ -48,13 +50,13 @@ Each bloom window has **two tables** on its printed sheet:
 ```
        1              2              3              4
   ┌──────────────┬──────────────┬──────────────┬──────────────┐
-A │  Red Tulip   │  Red Daisy   │  Red Poppy   │ Red Bluebell │
+A │  Red Tulip   │  Blue Daisy  │Yellow Poppy  │ Org Bluebell │
   ├──────────────┼──────────────┼──────────────┼──────────────┤
-B │  Blue Tulip  │  Blue Daisy  │  Blue Poppy  │Blue Bluebell │
+B │Yellow Daisy  │  Org Tulip   │  Red Bluebell│  Blue Poppy  │
   ├──────────────┼──────────────┼──────────────┼──────────────┤
-C │ Yellow Tulip │ Yellow Daisy │ Yellow Poppy │Yel Bluebell  │
+C │  Org Poppy   │ Yel Bluebell │  Blue Tulip  │  Red Daisy   │
   ├──────────────┼──────────────┼──────────────┼──────────────┤
-D │ Green Tulip  │ Green Daisy  │ Green Poppy  │Grn Bluebell  │
+D │Blue Bluebell │  Red Poppy   │  Org Daisy   │  Yel Tulip   │
   └──────────────┴──────────────┴──────────────┴──────────────┘
 ```
 
@@ -62,22 +64,22 @@ D │ Green Tulip  │ Green Daisy  │ Green Poppy  │Grn Bluebell  │
 
 | Flower | Colour | Collect from | Deliver to |
 |---|---|---|---|
-| Bluebell | Blue   | B4 | C4 |
-| Bluebell | Green  | D4 | A4 |
-| Bluebell | Red    | A4 | B4 |
-| Bluebell | Yellow | C4 | D4 |
-| Daisy    | Blue   | B2 | C2 |
-| Daisy    | Green  | D2 | A2 |
-| Daisy    | Red    | A2 | B2 |
-| Daisy    | Yellow | C2 | D2 |
-| Poppy    | Blue   | B3 | C3 |
-| Poppy    | Green  | D3 | A3 |
-| Poppy    | Red    | A3 | B3 |
-| Poppy    | Yellow | C3 | D3 |
-| Tulip    | Blue   | B1 | C1 |
-| Tulip    | Green  | D1 | A1 |
-| Tulip    | Red    | A1 | B1 |
-| Tulip    | Yellow | C1 | D1 |
+| Bluebell | Blue   | D1 | A4 |
+| Bluebell | Orange  | A4 | B3 |
+| Bluebell | Red    | B3 | C2 |
+| Bluebell | Yellow | C2 | D1 |
+| Daisy    | Blue   | A2 | B1 |
+| Daisy    | Orange  | D3 | A2 |
+| Daisy    | Red    | C4 | D3 |
+| Daisy    | Yellow | B1 | C4 |
+| Poppy    | Blue   | B4 | C1 |
+| Poppy    | Orange  | C1 | D2 |
+| Poppy    | Red    | D2 | A3 |
+| Poppy    | Yellow | A3 | B4 |
+| Tulip    | Blue   | C3 | D4 |
+| Tulip    | Orange  | B2 | C3 |
+| Tulip    | Red    | A1 | B2 |
+| Tulip    | Yellow | D4 | A1 |
 
 ### Table 2 — Button *(kid shouts flower name + petal count, Hive finds the button)*
 
@@ -99,13 +101,13 @@ D │ Green Tulip  │ Green Daisy  │ Green Poppy  │Grn Bluebell  │
 ```
        1              2              3              4
   ┌──────────────┬──────────────┬──────────────┬──────────────┐
-A │Blue Sunflower│ Blue Marigold│   Blue Rose  │Blue Lavender │
+A │Blue Sunflower│ Org Marigold │   Red Rose   │Yel Lavender  │
   ├──────────────┼──────────────┼──────────────┼──────────────┤
-B │Grn Sunflower │Grn Marigold  │  Green Rose  │Grn Lavender  │
+B │ Red Marigold │Yel Sunflower │Blue Lavender │  Org Rose    │
   ├──────────────┼──────────────┼──────────────┼──────────────┤
-C │ Red Sunflower│ Red Marigold │   Red Rose   │ Red Lavender │
+C │  Yel Rose    │ Red Lavender │ Org Sunflower│Blue Marigold │
   ├──────────────┼──────────────┼──────────────┼──────────────┤
-D │Yel Sunflower │Yel Marigold  │ Yellow Rose  │Yel Lavender  │
+D │ Org Lavender │   Blue Rose  │Yel Marigold  │ Red Sunflower│
   └──────────────┴──────────────┴──────────────┴──────────────┘
 ```
 
@@ -113,22 +115,22 @@ D │Yel Sunflower │Yel Marigold  │ Yellow Rose  │Yel Lavender  │
 
 | Flower | Colour | Collect from | Deliver to |
 |---|---|---|---|
-| Lavender  | Blue   | A4 | B4 |
-| Lavender  | Green  | B4 | C4 |
-| Lavender  | Red    | C4 | D4 |
-| Lavender  | Yellow | D4 | A4 |
-| Marigold  | Blue   | A2 | B2 |
-| Marigold  | Green  | B2 | C2 |
-| Marigold  | Red    | C2 | D2 |
-| Marigold  | Yellow | D2 | A2 |
-| Rose      | Blue   | A3 | B3 |
-| Rose      | Green  | B3 | C3 |
-| Rose      | Red    | C3 | D3 |
-| Rose      | Yellow | D3 | A3 |
-| Sunflower | Blue   | A1 | B1 |
-| Sunflower | Green  | B1 | C1 |
-| Sunflower | Red    | C1 | D1 |
-| Sunflower | Yellow | D1 | A1 |
+| Lavender  | Blue   | B3 | C2 |
+| Lavender  | Orange  | D1 | A4 |
+| Lavender  | Red    | C2 | D1 |
+| Lavender  | Yellow | A4 | B3 |
+| Marigold  | Blue   | C4 | D3 |
+| Marigold  | Orange  | A2 | B1 |
+| Marigold  | Red    | B1 | C4 |
+| Marigold  | Yellow | D3 | A2 |
+| Rose      | Blue   | D2 | A3 |
+| Rose      | Orange  | B4 | C1 |
+| Rose      | Red    | A3 | B4 |
+| Rose      | Yellow | C1 | D2 |
+| Sunflower | Blue   | A1 | B2 |
+| Sunflower | Orange  | C3 | D4 |
+| Sunflower | Red    | D4 | A1 |
+| Sunflower | Yellow | B2 | C3 |
 
 ### Table 2 — Button *(kid shouts flower name + petal count, Hive finds the button)*
 
@@ -150,13 +152,13 @@ D │Yel Sunflower │Yel Marigold  │ Yellow Rose  │Yel Lavender  │
 ```
        1              2              3              4
   ┌──────────────┬──────────────┬──────────────┬──────────────┐
-A │Yellow Dahlia │Yel Foxglove  │Yel Buttercup │ Yel Clover   │
+A │ Org Dahlia   │  Red Foxglove│Yel Buttercup │  Blue Clover │
   ├──────────────┼──────────────┼──────────────┼──────────────┤
-B │  Red Dahlia  │ Red Foxglove │ Red Buttercup│  Red Clover  │
+B │Yel Foxglove  │  Blue Dahlia │  Org Clover  │ Red Buttercup│
   ├──────────────┼──────────────┼──────────────┼──────────────┤
-C │ Green Dahlia │Grn Foxglove  │Grn Buttercup │ Grn Clover   │
+C │Blue Buttercup│  Yel Clover  │  Red Dahlia  │ Org Foxglove │
   ├──────────────┼──────────────┼──────────────┼──────────────┤
-D │ Blue Dahlia  │Blue Foxglove │Blue Buttercup│  Blue Clover │
+D │  Red Clover  │ Org Buttercup│ Blue Foxglove│  Yel Dahlia  │
   └──────────────┴──────────────┴──────────────┴──────────────┘
 ```
 
@@ -164,22 +166,22 @@ D │ Blue Dahlia  │Blue Foxglove │Blue Buttercup│  Blue Clover │
 
 | Flower    | Colour | Collect from | Deliver to |
 |---|---|---|---|
-| Buttercup | Blue   | D3 | A3 |
-| Buttercup | Green  | C3 | D3 |
-| Buttercup | Red    | B3 | C3 |
-| Buttercup | Yellow | A3 | B3 |
-| Clover    | Blue   | D4 | A4 |
-| Clover    | Green  | C4 | D4 |
-| Clover    | Red    | B4 | C4 |
-| Clover    | Yellow | A4 | B4 |
-| Dahlia    | Blue   | D1 | A1 |
-| Dahlia    | Green  | C1 | D1 |
-| Dahlia    | Red    | B1 | C1 |
-| Dahlia    | Yellow | A1 | B1 |
-| Foxglove  | Blue   | D2 | A2 |
-| Foxglove  | Green  | C2 | D2 |
-| Foxglove  | Red    | B2 | C2 |
-| Foxglove  | Yellow | A2 | B2 |
+| Buttercup | Blue   | C1 | D2 |
+| Buttercup | Orange  | D2 | A3 |
+| Buttercup | Red    | B4 | C1 |
+| Buttercup | Yellow | A3 | B4 |
+| Clover    | Blue   | A4 | B3 |
+| Clover    | Orange  | B3 | C2 |
+| Clover    | Red    | D1 | A4 |
+| Clover    | Yellow | C2 | D1 |
+| Dahlia    | Blue   | B2 | C3 |
+| Dahlia    | Orange  | A1 | B2 |
+| Dahlia    | Red    | C3 | D4 |
+| Dahlia    | Yellow | D4 | A1 |
+| Foxglove  | Blue   | D3 | A2 |
+| Foxglove  | Orange  | C4 | D3 |
+| Foxglove  | Red    | A2 | B1 |
+| Foxglove  | Yellow | B1 | C4 |
 
 ### Table 2 — Button *(kid shouts flower name + petal count, Hive finds the button)*
 
@@ -189,110 +191,3 @@ D │ Blue Dahlia  │Blue Foxglove │Blue Buttercup│  Blue Clover │
 | Foxglove  | **Yellow** | **Green**  | **Red**    | **Blue**   |
 | Buttercup | **Green**  | **Red**    | **Blue**   | **Yellow** |
 | Clover    | **Red**    | **Blue**   | **Yellow** | **Green**  |
-
----
-
-## Python Data
-
-Replace `UID_XX` values with real scanned UIDs. `next_uid` is the delivery target (same type, different colour). The button to press is **not stored per flower** — it is determined at runtime from `petal_encoding[flower_name][petal_count]`, where petal count is randomly generated (1–4) at each scan.
-
-```python
-flower_map_morning = {
-    "UID_A1": {"name": "Tulip",    "colour": "Red",    "coordinate": "A1", "next_uid": "UID_B1"},
-    "UID_A2": {"name": "Daisy",    "colour": "Red",    "coordinate": "A2", "next_uid": "UID_B2"},
-    "UID_A3": {"name": "Poppy",    "colour": "Red",    "coordinate": "A3", "next_uid": "UID_B3"},
-    "UID_A4": {"name": "Bluebell", "colour": "Red",    "coordinate": "A4", "next_uid": "UID_B4"},
-    "UID_B1": {"name": "Tulip",    "colour": "Blue",   "coordinate": "B1", "next_uid": "UID_C1"},
-    "UID_B2": {"name": "Daisy",    "colour": "Blue",   "coordinate": "B2", "next_uid": "UID_C2"},
-    "UID_B3": {"name": "Poppy",    "colour": "Blue",   "coordinate": "B3", "next_uid": "UID_C3"},
-    "UID_B4": {"name": "Bluebell", "colour": "Blue",   "coordinate": "B4", "next_uid": "UID_C4"},
-    "UID_C1": {"name": "Tulip",    "colour": "Yellow", "coordinate": "C1", "next_uid": "UID_D1"},
-    "UID_C2": {"name": "Daisy",    "colour": "Yellow", "coordinate": "C2", "next_uid": "UID_D2"},
-    "UID_C3": {"name": "Poppy",    "colour": "Yellow", "coordinate": "C3", "next_uid": "UID_D3"},
-    "UID_C4": {"name": "Bluebell", "colour": "Yellow", "coordinate": "C4", "next_uid": "UID_D4"},
-    "UID_D1": {"name": "Tulip",    "colour": "Green",  "coordinate": "D1", "next_uid": "UID_A1"},
-    "UID_D2": {"name": "Daisy",    "colour": "Green",  "coordinate": "D2", "next_uid": "UID_A2"},
-    "UID_D3": {"name": "Poppy",    "colour": "Green",  "coordinate": "D3", "next_uid": "UID_A3"},
-    "UID_D4": {"name": "Bluebell", "colour": "Green",  "coordinate": "D4", "next_uid": "UID_A4"},
-}
-
-flower_map_midday = {
-    "UID_A1": {"name": "Sunflower", "colour": "Blue",   "coordinate": "A1", "next_uid": "UID_B1"},
-    "UID_A2": {"name": "Marigold",  "colour": "Blue",   "coordinate": "A2", "next_uid": "UID_B2"},
-    "UID_A3": {"name": "Rose",      "colour": "Blue",   "coordinate": "A3", "next_uid": "UID_B3"},
-    "UID_A4": {"name": "Lavender",  "colour": "Blue",   "coordinate": "A4", "next_uid": "UID_B4"},
-    "UID_B1": {"name": "Sunflower", "colour": "Green",  "coordinate": "B1", "next_uid": "UID_C1"},
-    "UID_B2": {"name": "Marigold",  "colour": "Green",  "coordinate": "B2", "next_uid": "UID_C2"},
-    "UID_B3": {"name": "Rose",      "colour": "Green",  "coordinate": "B3", "next_uid": "UID_C3"},
-    "UID_B4": {"name": "Lavender",  "colour": "Green",  "coordinate": "B4", "next_uid": "UID_C4"},
-    "UID_C1": {"name": "Sunflower", "colour": "Red",    "coordinate": "C1", "next_uid": "UID_D1"},
-    "UID_C2": {"name": "Marigold",  "colour": "Red",    "coordinate": "C2", "next_uid": "UID_D2"},
-    "UID_C3": {"name": "Rose",      "colour": "Red",    "coordinate": "C3", "next_uid": "UID_D3"},
-    "UID_C4": {"name": "Lavender",  "colour": "Red",    "coordinate": "C4", "next_uid": "UID_D4"},
-    "UID_D1": {"name": "Sunflower", "colour": "Yellow", "coordinate": "D1", "next_uid": "UID_A1"},
-    "UID_D2": {"name": "Marigold",  "colour": "Yellow", "coordinate": "D2", "next_uid": "UID_A2"},
-    "UID_D3": {"name": "Rose",      "colour": "Yellow", "coordinate": "D3", "next_uid": "UID_A3"},
-    "UID_D4": {"name": "Lavender",  "colour": "Yellow", "coordinate": "D4", "next_uid": "UID_A4"},
-}
-
-flower_map_afternoon = {
-    "UID_A1": {"name": "Dahlia",     "colour": "Yellow", "coordinate": "A1", "next_uid": "UID_B1"},
-    "UID_A2": {"name": "Foxglove",   "colour": "Yellow", "coordinate": "A2", "next_uid": "UID_B2"},
-    "UID_A3": {"name": "Buttercup",  "colour": "Yellow", "coordinate": "A3", "next_uid": "UID_B3"},
-    "UID_A4": {"name": "Clover",     "colour": "Yellow", "coordinate": "A4", "next_uid": "UID_B4"},
-    "UID_B1": {"name": "Dahlia",     "colour": "Red",    "coordinate": "B1", "next_uid": "UID_C1"},
-    "UID_B2": {"name": "Foxglove",   "colour": "Red",    "coordinate": "B2", "next_uid": "UID_C2"},
-    "UID_B3": {"name": "Buttercup",  "colour": "Red",    "coordinate": "B3", "next_uid": "UID_C3"},
-    "UID_B4": {"name": "Clover",     "colour": "Red",    "coordinate": "B4", "next_uid": "UID_C4"},
-    "UID_C1": {"name": "Dahlia",     "colour": "Green",  "coordinate": "C1", "next_uid": "UID_D1"},
-    "UID_C2": {"name": "Foxglove",   "colour": "Green",  "coordinate": "C2", "next_uid": "UID_D2"},
-    "UID_C3": {"name": "Buttercup",  "colour": "Green",  "coordinate": "C3", "next_uid": "UID_D3"},
-    "UID_C4": {"name": "Clover",     "colour": "Green",  "coordinate": "C4", "next_uid": "UID_D4"},
-    "UID_D1": {"name": "Dahlia",     "colour": "Blue",   "coordinate": "D1", "next_uid": "UID_A1"},
-    "UID_D2": {"name": "Foxglove",   "colour": "Blue",   "coordinate": "D2", "next_uid": "UID_A2"},
-    "UID_D3": {"name": "Buttercup",  "colour": "Blue",   "coordinate": "D3", "next_uid": "UID_A3"},
-    "UID_D4": {"name": "Clover",     "colour": "Blue",   "coordinate": "D4", "next_uid": "UID_A4"},
-}
-
-hive_uid = "UID_HIVE"
-
-bloom_windows = [
-    {
-        "name": "Morning",
-        "start_seconds": 0,
-        "map": flower_map_morning,
-        # petal_encoding[flower_name][petal_count] → button to press
-        # petal count is randomly generated 1–4 at each flower scan
-        "petal_encoding": {
-            "Tulip":    {1: "Red",    2: "Blue",   3: "Yellow", 4: "Green"},
-            "Daisy":    {1: "Blue",   2: "Yellow", 3: "Green",  4: "Red"},
-            "Poppy":    {1: "Yellow", 2: "Green",  3: "Red",    4: "Blue"},
-            "Bluebell": {1: "Green",  2: "Red",    3: "Blue",   4: "Yellow"},
-        },
-    },
-    {
-        "name": "Midday",
-        "start_seconds": 180,
-        "map": flower_map_midday,
-        "petal_encoding": {
-            "Sunflower": {1: "Yellow", 2: "Green",  3: "Red",    4: "Blue"},
-            "Marigold":  {1: "Green",  2: "Red",    3: "Blue",   4: "Yellow"},
-            "Rose":      {1: "Red",    2: "Blue",   3: "Yellow", 4: "Green"},
-            "Lavender":  {1: "Blue",   2: "Yellow", 3: "Green",  4: "Red"},
-        },
-    },
-    {
-        "name": "Afternoon",
-        "start_seconds": 360,
-        "map": flower_map_afternoon,
-        "petal_encoding": {
-            "Dahlia":     {1: "Blue",   2: "Yellow", 3: "Green",  4: "Red"},
-            "Foxglove":   {1: "Yellow", 2: "Green",  3: "Red",    4: "Blue"},
-            "Buttercup":  {1: "Green",  2: "Red",    3: "Blue",   4: "Yellow"},
-            "Clover":     {1: "Red",    2: "Blue",   3: "Yellow", 4: "Green"},
-        },
-    },
-]
-
-game_duration_seconds = 600
-```

@@ -41,7 +41,7 @@ A fixed base station with its own RFID token. Players scan this token at the sta
 
 The Hive team has a physical printed table — one per bloom window (see [Bloom Windows](#bloom-windows) and [flower-maps.md](flower-maps.md)). Each table has one row per flower, with columns:
 
-**Table 1 — Location**: flower name + colour → grid coordinates (where to collect from, where to deliver to).
+**Table 1 — Location**: flower name + colour → grid coordinate. Used to find both the collect flower and (after the kid shouts it back) the randomly-chosen deliver flower.
 
 **Table 2 — Button**: a 4×4 grid of flower type × petal count → button colour. The child shouts both the flower name and the petal count; the Hive cross-references both to find the button.
 
@@ -74,8 +74,10 @@ Each turn belongs to one player; players take turns holding the Bee. A turn has 
 [Kid presses button]
   Correct button → POLLEN COLLECTED
     → Device briefly shows a success screen
-    → Device shows the DELIVER target: a flower of the same type but a
-      different colour
+    → Device shows the DELIVER target: one of the other flowers of the same
+      type, chosen randomly at this moment (the Hive cannot predict it in
+      advance). Kid shouts the deliver flower name + colour back to the Hive.
+      Hive looks up its position in Table 1 and shouts the coordinate.
   Wrong button   → SPIDER (see below)
 
 [Kid travels to the deliver flower]

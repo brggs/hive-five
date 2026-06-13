@@ -8,7 +8,7 @@ Physical activity game for kids. A child carries a Badger2040 ("the Bee") and na
 |---|---|
 | Badger2040 (Pi Pico W + e-ink 296×128px) | Main device |
 | PN532 NFC/RFID module (I2C, 0x24) | Reads flower + Hive RFID tokens |
-| MCP23017 I2C GPIO expander (I2C, 0x20) | Drives 4 arcade buttons via Port B |
+| MCP23017 I2C GPIO expander (I2C, 0x20) | Drives 4 arcade buttons via Port A pins 4-7 |
 | 4× arcade buttons (Red, Blue, Yellow, Green) | Player input |
 | 17× RFID tokens | 16 flowers (4 types × 4 colours, all unique) + 1 Hive |
 
@@ -74,5 +74,5 @@ Key points the code relies on:
 
 - MicroPython on RP2040 — no standard library beyond what's bundled
 - e-ink display is slow; use `UPDATE_FAST` and minimise redraws
-- Buttons are active-low via MCP23017 Port B pull-ups (`not (port_b & pin)`)
+- Buttons are active-low via MCP23017 Port A pull-ups (`not (port_a & pin)`)
 - RFID polling has a short timeout (50ms) to keep the main loop responsive

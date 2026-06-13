@@ -17,13 +17,13 @@ mcp     = MCP23017(i2c)
 rfid    = PN532(i2c)
 display = Display()
 
-# Arcade buttons on MCP23017 Port B (active-low via pull-ups). Pin bit -> colour.
+# Arcade buttons on MCP23017 Port A pins 4-7 (active-low via pull-ups). Pin bit -> colour.
 # The colour is what Game.on_button() compares against the resolved correct button.
 BUTTONS = [
-    {"pin": 0x01, "colour": "Red"},
-    {"pin": 0x02, "colour": "Blue"},
-    {"pin": 0x04, "colour": "Yellow"},
-    {"pin": 0x08, "colour": "Green"},
+    {"pin": 0x10, "colour": "Green"},
+    {"pin": 0x20, "colour": "Yellow"},
+    {"pin": 0x40, "colour": "Blue"},
+    {"pin": 0x80, "colour": "Red"},
 ]
 
 # Monotonic seconds for this session (ticks_diff handles the ms-counter wrap).
@@ -85,9 +85,9 @@ while True:
         last_uid = None
 
     # Buttons: act on press edge.
-    port_b = mcp.read_port_b()
+    port_a = mcp.read_port_a()
     for btn in BUTTONS:
-        pressed = not (port_b & btn["pin"])
+        pressed = not (port_a & btn["pin"])
         if pressed and not prev_button_states[btn["pin"]]:
             g.on_button(btn["colour"], now)
         prev_button_states[btn["pin"]] = pressed

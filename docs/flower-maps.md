@@ -36,7 +36,7 @@ Scanned 2026-06-05. These are the real hardware UIDs — edit `token_uids` in `s
 
 Each bloom window has **two tables** on its printed sheet:
 
-- **Table 1 — Location**: the Hive looks up the flower name + colour the device shows, to find where the kid should go and where they deliver to.
+- **Table 1 — Location**: the Hive looks up the flower name + colour the device shows, to find where the kid should go. Used twice per turn: once for the collect target, and again for the deliver target after the kid shouts it back.
 - **Table 2 — Button**: when the kid shouts the flower name and petal count, the Hive cross-references both in a grid to find which button to press. Petal counts are **randomly generated** (1–4) by the device each time a flower is scanned — they are not fixed. Table 2 changes each window, so the Hive must use the correct sheet.
 
 ---
@@ -62,24 +62,24 @@ D │Blue Bluebell │  Red Poppy   │  Org Daisy   │  Yel Tulip   │
 
 ### Table 1 — Location *(sorted by flower, then colour)*
 
-| Flower | Colour | Collect from | Deliver to |
-|---|---|---|---|
-| Bluebell | Blue   | D1 | A4 |
-| Bluebell | Orange  | A4 | B3 |
-| Bluebell | Red    | B3 | C2 |
-| Bluebell | Yellow | C2 | D1 |
-| Daisy    | Blue   | A2 | B1 |
-| Daisy    | Orange  | D3 | A2 |
-| Daisy    | Red    | C4 | D3 |
-| Daisy    | Yellow | B1 | C4 |
-| Poppy    | Blue   | B4 | C1 |
-| Poppy    | Orange  | C1 | D2 |
-| Poppy    | Red    | D2 | A3 |
-| Poppy    | Yellow | A3 | B4 |
-| Tulip    | Blue   | C3 | D4 |
-| Tulip    | Orange  | B2 | C3 |
-| Tulip    | Red    | A1 | B2 |
-| Tulip    | Yellow | D4 | A1 |
+| Flower | Colour | Position |
+|---|---|---|
+| Bluebell | Blue   | D1 |
+| Bluebell | Orange  | A4 |
+| Bluebell | Red    | B3 |
+| Bluebell | Yellow | C2 |
+| Daisy    | Blue   | A2 |
+| Daisy    | Orange  | D3 |
+| Daisy    | Red    | C4 |
+| Daisy    | Yellow | B1 |
+| Poppy    | Blue   | B4 |
+| Poppy    | Orange  | C1 |
+| Poppy    | Red    | D2 |
+| Poppy    | Yellow | A3 |
+| Tulip    | Blue   | C3 |
+| Tulip    | Orange  | B2 |
+| Tulip    | Red    | A1 |
+| Tulip    | Yellow | D4 |
 
 ### Table 2 — Button *(kid shouts flower name + petal count, Hive finds the button)*
 
@@ -113,24 +113,24 @@ D │ Org Lavender │   Blue Rose  │Yel Marigold  │ Red Sunflower│
 
 ### Table 1 — Location *(sorted by flower, then colour)*
 
-| Flower | Colour | Collect from | Deliver to |
-|---|---|---|---|
-| Lavender  | Blue   | B3 | C2 |
-| Lavender  | Orange  | D1 | A4 |
-| Lavender  | Red    | C2 | D1 |
-| Lavender  | Yellow | A4 | B3 |
-| Marigold  | Blue   | C4 | D3 |
-| Marigold  | Orange  | A2 | B1 |
-| Marigold  | Red    | B1 | C4 |
-| Marigold  | Yellow | D3 | A2 |
-| Rose      | Blue   | D2 | A3 |
-| Rose      | Orange  | B4 | C1 |
-| Rose      | Red    | A3 | B4 |
-| Rose      | Yellow | C1 | D2 |
-| Sunflower | Blue   | A1 | B2 |
-| Sunflower | Orange  | C3 | D4 |
-| Sunflower | Red    | D4 | A1 |
-| Sunflower | Yellow | B2 | C3 |
+| Flower | Colour | Position |
+|---|---|---|
+| Lavender  | Blue   | B3 |
+| Lavender  | Orange  | D1 |
+| Lavender  | Red    | C2 |
+| Lavender  | Yellow | A4 |
+| Marigold  | Blue   | C4 |
+| Marigold  | Orange  | A2 |
+| Marigold  | Red    | B1 |
+| Marigold  | Yellow | D3 |
+| Rose      | Blue   | D2 |
+| Rose      | Orange  | B4 |
+| Rose      | Red    | A3 |
+| Rose      | Yellow | C1 |
+| Sunflower | Blue   | A1 |
+| Sunflower | Orange  | C3 |
+| Sunflower | Red    | D4 |
+| Sunflower | Yellow | B2 |
 
 ### Table 2 — Button *(kid shouts flower name + petal count, Hive finds the button)*
 
@@ -164,24 +164,24 @@ D │  Red Clover  │ Org Buttercup│ Blue Foxglove│  Yel Dahlia  │
 
 ### Table 1 — Location *(sorted by flower, then colour)*
 
-| Flower    | Colour | Collect from | Deliver to |
-|---|---|---|---|
-| Buttercup | Blue   | C1 | D2 |
-| Buttercup | Orange  | D2 | A3 |
-| Buttercup | Red    | B4 | C1 |
-| Buttercup | Yellow | A3 | B4 |
-| Clover    | Blue   | A4 | B3 |
-| Clover    | Orange  | B3 | C2 |
-| Clover    | Red    | D1 | A4 |
-| Clover    | Yellow | C2 | D1 |
-| Dahlia    | Blue   | B2 | C3 |
-| Dahlia    | Orange  | A1 | B2 |
-| Dahlia    | Red    | C3 | D4 |
-| Dahlia    | Yellow | D4 | A1 |
-| Foxglove  | Blue   | D3 | A2 |
-| Foxglove  | Orange  | C4 | D3 |
-| Foxglove  | Red    | A2 | B1 |
-| Foxglove  | Yellow | B1 | C4 |
+| Flower    | Colour | Position |
+|---|---|---|
+| Buttercup | Blue   | C1 |
+| Buttercup | Orange  | D2 |
+| Buttercup | Red    | B4 |
+| Buttercup | Yellow | A3 |
+| Clover    | Blue   | A4 |
+| Clover    | Orange  | B3 |
+| Clover    | Red    | D1 |
+| Clover    | Yellow | C2 |
+| Dahlia    | Blue   | B2 |
+| Dahlia    | Orange  | A1 |
+| Dahlia    | Red    | C3 |
+| Dahlia    | Yellow | D4 |
+| Foxglove  | Blue   | D3 |
+| Foxglove  | Orange  | C4 |
+| Foxglove  | Red    | A2 |
+| Foxglove  | Yellow | B1 |
 
 ### Table 2 — Button *(kid shouts flower name + petal count, Hive finds the button)*
 

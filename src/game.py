@@ -42,8 +42,8 @@ VENUS_FLY_TRAP = "VENUS_FLY_TRAP"
 GAME_OVER = "GAME_OVER"
 
 # How long the transient success/failure screens stay up (seconds).
-SUCCESS_DWELL_SECONDS = 2.0
-FAILURE_DWELL_SECONDS = 2.0
+SUCCESS_DWELL_SECONDS = 5.0
+FAILURE_DWELL_SECONDS = 5.0
 
 
 class Game:
@@ -99,7 +99,6 @@ class Game:
         self.turn_window = self.current_window(now)
         flower_map = self.turn_window["map"]
         self.collect_uid = self.rng.choice(list(flower_map.keys()))
-        self.deliver_uid = flower_map[self.collect_uid]["next_uid"]
         self.petal_count = None
         self.correct_button = None
         self.state = SHOWING_COLLECT_TARGET
@@ -116,6 +115,11 @@ class Game:
             flower = self.turn_window["map"][uid]
             self.petal_count = self.rng.randint(1, 4)
             self.correct_button = self.turn_window["petal_encoding"][flower["name"]][self.petal_count]
+            if self.state == SHOWING_COLLECT_TARGET:
+                flower_map = self.turn_window["map"]
+                candidates = [u for u, f in flower_map.items()
+                              if f["name"] == flower["name"] and u != uid]
+                self.deliver_uid = self.rng.choice(candidates)
             self.state = info_state
         elif uid in self.turn_window["map"]:
             self._fail(VENUS_FLY_TRAP, now)  # wrong flower

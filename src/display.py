@@ -61,9 +61,12 @@ class Display:
             ("Hive team: check the map!", 84, 2),
         ], pollinated, eaten)
 
-    def show_info(self, flower, petals, pollinated, eaten):
+    def show_info(self, flower, petals, window, pollinated, eaten):
+        # window is the (frozen) bloom window for this turn, so the Hive team
+        # reads the right petal->button table even when a turn straddles a
+        # window boundary.
         self._screen([
-            ("You found:", 12, 2),
+            ("You found:  ({})".format(window), 12, 2),
             (flower, 40, 3),
             ("Petals: {}".format(petals), 72, 2),
             ("Shout name & petals!", 92, 2),
@@ -104,5 +107,6 @@ class Display:
         self.d.set_thickness(1)
         self.d.text("Flowers pollinated: {}".format(pollinated), 10, 56, scale=2)
         self.d.text("Bees eaten: {}".format(eaten), 10, 80, scale=2)
-        self.d.text("Well done everyone!", 10, 104, scale=2)
+        self.d.text("Well done everyone!", 10, 100, scale=2)
+        self.d.text("Green+Yellow to restart", 10, 116, scale=1)
         self.d.update()

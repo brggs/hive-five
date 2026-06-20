@@ -42,7 +42,7 @@ VENUS_FLY_TRAP = "VENUS_FLY_TRAP"
 GAME_OVER = "GAME_OVER"
 
 # How long the transient success/failure screens stay up (seconds).
-SUCCESS_DWELL_SECONDS = 5.0
+SUCCESS_DWELL_SECONDS = 3.0
 FAILURE_DWELL_SECONDS = 5.0
 
 

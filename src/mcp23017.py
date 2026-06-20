@@ -18,7 +18,12 @@ class MCP23017:
         self.i2c.writeto_mem(self.addr, reg, bytes([value]))
 
     def _read(self, reg):
-        return self.i2c.readfrom_mem(self.addr, reg, 1)[0]
+        # Tolerate a transient bus glitch the way pn532.py does: a dropped sample
+        # reads as 0xFF (all pull-ups high = no button pressed), never a crash.
+        try:
+            return self.i2c.readfrom_mem(self.addr, reg, 1)[0]
+        except OSError:
+            return 0xFF
 
     def read_port_a(self):
         return self._read(self.GPIOA)

@@ -1,4 +1,6 @@
+import gc
 import machine
+import sys
 import time
 
 from mcp23017 import MCP23017
@@ -43,7 +45,7 @@ def render(view):
     elif state in (game.SHOWING_COLLECT_TARGET, game.SHOWING_DELIVER_TARGET):
         display.show_target(view["verb"], view["flower"], view["window"], p, e)
     elif state in (game.SHOWING_COLLECT_INFO, game.SHOWING_DELIVER_INFO):
-        display.show_info(view["flower"], view["petals"], p, e)
+        display.show_info(view["flower"], view["petals"], view["window"], p, e)
     elif state == game.POLLEN_COLLECTED:
         display.show_collected(p, e)
     elif state == game.POLLEN_DELIVERED:
@@ -66,38 +68,61 @@ if not rfid.init():
 g = Game(game_data.bloom_windows, game_data.hive_uid, game_data.game_duration_seconds)
 g.start(now_s())
 
+# Reboot automatically if the main loop hangs for more than 5 seconds
+# (e.g. a battery knock that locks up the I2C bus). Scores are lost but the
+# game is immediately playable again without pressing the physical reset button.
+wdt = machine.WDT(timeout=5000)
+
 prev_button_states = {btn["pin"]: False for btn in BUTTONS}
 last_uid = None
 last_view = None
 
 while True:
-    now = now_s()
+    try:
+        now = now_s()
 
-    # RFID: act once per fresh tag presentation.
-    uid = rfid.read_passive_target(timeout_ms=50)
-    if uid and uid != last_uid:
-        last_uid = uid
-        if uid == game_data.hive_uid:
-            g.on_hive_scan(now)
-        else:
-            g.on_flower_scan(uid, now)
-    elif not uid:
-        last_uid = None
+        # RFID: act once per fresh tag presentation.
+        uid = rfid.read_passive_target(timeout_ms=50)
+        if uid and uid != last_uid:
+            last_uid = uid
+            if uid == game_data.hive_uid:
+                g.on_hive_scan(now)
+            else:
+                g.on_flower_scan(uid, now)
+        elif not uid:
+            last_uid = None
 
-    # Buttons: act on press edge.
-    port_a = mcp.read_port_a()
-    for btn in BUTTONS:
-        pressed = not (port_a & btn["pin"])
-        if pressed and not prev_button_states[btn["pin"]]:
-            g.on_button(btn["colour"], now)
-        prev_button_states[btn["pin"]] = pressed
+        # Buttons: act on press edge.
+        port_a = mcp.read_port_a()
 
-    g.tick(now)
+        # Green + Yellow held together during GAME_OVER restarts the game.
+        if g.state == game.GAME_OVER and not (port_a & 0x30):
+            g.start(now)
+            last_uid = None
+            last_view = None
 
-    # Redraw only when the screen actually changes (e-ink is slow).
-    view = g.view()
-    if view != last_view:
-        render(view)
-        last_view = view
+        for btn in BUTTONS:
+            pressed = not (port_a & btn["pin"])
+            if pressed and not prev_button_states[btn["pin"]]:
+                g.on_button(btn["colour"], now)
+            prev_button_states[btn["pin"]] = pressed
 
+        g.tick(now)
+
+        # Redraw only when the screen actually changes (e-ink is slow).
+        view = g.view()
+        if view != last_view:
+            render(view)
+            last_view = view
+    except Exception as e:
+        # A transient glitch (e.g. an I2C NACK or a MemoryError) must not freeze
+        # the device. Log the traceback to the REPL, surface the exception on the
+        # e-ink so a recurrence is diagnosable rather than a blank freeze, then
+        # carry on. Force a fresh redraw next loop since last_view is now stale.
+        sys.print_exception(e)
+        display.show_message("Error", repr(e))
+        last_view = None
+
+    gc.collect()
     time.sleep_ms(50)
+    wdt.feed()

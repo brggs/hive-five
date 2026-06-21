@@ -46,12 +46,14 @@ class Display:
 
     # -- game screens ------------------------------------------------------
 
-    def show_waiting(self, pollinated, eaten):
-        self._screen([
-            ("Hand the Bee to the", 14, 2),
-            ("next player!", 38, 2),
-            ("Scan the Hive to start.", 74, 2),
-        ], pollinated, eaten)
+    def show_waiting(self, pollinated, eaten, battery_pct):
+        self._begin()
+        self.d.text("Batt:{}%".format(battery_pct), 210, 4, scale=1)
+        self.d.text("Hand the Bee to the", 10, 14, scale=2)
+        self.d.text("next player!", 10, 38, scale=2)
+        self.d.text("Scan the Hive to start.", 10, 74, scale=2)
+        self._score_bar(pollinated, eaten)
+        self.d.update()
 
     def show_target(self, verb, flower, window, pollinated, eaten):
         # verb is "COLLECT FROM" or "DELIVER TO"; window is the bloom window name.
@@ -100,8 +102,9 @@ class Display:
             ("Return to the Hive.", 82, 2),
         ], pollinated, eaten)
 
-    def show_game_over(self, pollinated, eaten):
+    def show_game_over(self, pollinated, eaten, battery_pct):
         self._begin()
+        self.d.text("Batt:{}%".format(battery_pct), 210, 4, scale=1)
         self.d.set_thickness(2)
         self.d.text("GAME OVER", 10, 18, scale=3)
         self.d.set_thickness(1)

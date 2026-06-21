@@ -15,6 +15,13 @@ I2C_SCL = 5
 
 i2c = machine.I2C(0, sda=machine.Pin(I2C_SDA), scl=machine.Pin(I2C_SCL), freq=400_000)
 
+_vsys_adc = machine.ADC(29)  # VSYS via on-board 1/3 voltage divider
+
+def read_battery_pct():
+    raw = sum(_vsys_adc.read_u16() for _ in range(5)) // 5
+    voltage = raw / 65535 * 3.3 * 3
+    return max(0, min(100, int((voltage - 3.0) / 1.2 * 100)))
+
 mcp     = MCP23017(i2c)
 rfid    = PN532(i2c)
 display = Display()
@@ -41,7 +48,7 @@ def render(view):
     state = view["state"]
     p, e = view["pollinated"], view["eaten"]
     if state == game.WAITING_FOR_HIVE_SCAN:
-        display.show_waiting(p, e)
+        display.show_waiting(p, e, read_battery_pct())
     elif state in (game.SHOWING_COLLECT_TARGET, game.SHOWING_DELIVER_TARGET):
         display.show_target(view["verb"], view["flower"], view["window"], p, e)
     elif state in (game.SHOWING_COLLECT_INFO, game.SHOWING_DELIVER_INFO):
@@ -55,7 +62,7 @@ def render(view):
     elif state == game.VENUS_FLY_TRAP:
         display.show_venus(p, e)
     elif state == game.GAME_OVER:
-        display.show_game_over(p, e)
+        display.show_game_over(p, e, read_battery_pct())
 
 
 print("Waiting for PN532 to boot...")

@@ -58,7 +58,7 @@ def new_game(rng):
         game_data.game_duration_seconds,
         rng=rng,
     )
-    g.start(0.0)
+    g.start()
     return g
 
 

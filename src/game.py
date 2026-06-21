@@ -76,10 +76,15 @@ class Game:
     def start(self, now):
         """Begin the game clock and wait for the first Hive scan."""
         self.start_time = now
+    def start(self):
+        """Reset state and wait for the first Hive scan to start the clock."""
+        self.start_time = None
         self.state = WAITING_FOR_HIVE_SCAN
         self._dwell_until = None
 
     def elapsed(self, now):
+        if self.start_time is None:
+            return 0.0
         return now - self.start_time
 
     def current_window(self, now):
@@ -96,6 +101,8 @@ class Game:
     def on_hive_scan(self, now):
         if self.state != WAITING_FOR_HIVE_SCAN:
             return
+        if self.start_time is None:
+            self.start_time = now
         self.turn_window = self.current_window(now)
         flower_map = self.turn_window["map"]
         self.collect_uid = self.rng.choice(list(flower_map.keys()))

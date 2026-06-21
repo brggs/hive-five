@@ -150,4 +150,4 @@ bloom_windows = [
     },
 ]
 
-game_duration_seconds = 600  # 10 minutes total
+game_duration_seconds = 540  # 9 minutes total

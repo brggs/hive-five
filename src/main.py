@@ -73,7 +73,7 @@ if not rfid.init():
     raise SystemExit
 
 g = Game(game_data.bloom_windows, game_data.hive_uid, game_data.game_duration_seconds)
-g.start(now_s())
+g.start()
 
 # Reboot automatically if the main loop hangs for more than 5 seconds
 # (e.g. a battery knock that locks up the I2C bus). Scores are lost but the

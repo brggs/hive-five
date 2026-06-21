@@ -79,8 +79,8 @@ def check(cond, msg):
 
 def test_happy_path():
     print("test_happy_path")
-    # 1st choice: A1 (collect flower), 2nd choice: B2 (deliver target from other tulips)
-    rng = FakeRng(choice_values=[A1, B2], randint_value=1)  # Red Tulip, petals=1 -> Red
+    # Shuffle calls (Morning types): Tulip->Daisy->Poppy->Bluebell, then A1 (collect UID), B2 (deliver UID)
+    rng = FakeRng(choice_values=["Tulip", "Daisy", "Poppy", "Bluebell", A1, B2], randint_value=1)
     g = new_game(rng)
 
     g.on_hive_scan(0.0)
@@ -111,7 +111,7 @@ def test_happy_path():
 
 def test_wrong_button_spider():
     print("test_wrong_button_spider")
-    rng = FakeRng(choice_values=[A1, B2], randint_value=1)  # correct = Red
+    rng = FakeRng(choice_values=["Tulip", "Daisy", "Poppy", "Bluebell", A1, B2], randint_value=1)
     g = new_game(rng)
     g.on_hive_scan(0.0)
     g.on_flower_scan(A1, 1.0)
@@ -127,7 +127,7 @@ def test_wrong_button_spider():
 
 def test_wrong_flower_venus():
     print("test_wrong_flower_venus")
-    rng = FakeRng(choice_values=[A1])
+    rng = FakeRng(choice_values=["Tulip", "Daisy", "Poppy", "Bluebell", A1])
     g = new_game(rng)
     g.on_hive_scan(0.0)
 
@@ -140,7 +140,7 @@ def test_wrong_flower_venus():
 
 def test_unknown_and_hive_scans_ignored_midturn():
     print("test_unknown_and_hive_scans_ignored_midturn")
-    rng = FakeRng(choice_values=[A1])
+    rng = FakeRng(choice_values=["Tulip", "Daisy", "Poppy", "Bluebell", A1])
     g = new_game(rng)
     g.on_hive_scan(0.0)
 
@@ -153,7 +153,8 @@ def test_unknown_and_hive_scans_ignored_midturn():
 
 def test_hive_rerandomises_target():
     print("test_hive_rerandomises_target")
-    rng = FakeRng(choice_values=[A1, D2])
+    # Shuffle: Tulip first, Poppy second (so 2nd scan pops Poppy -> D2 is Red Poppy)
+    rng = FakeRng(choice_values=["Tulip", "Poppy", "Daisy", "Bluebell", A1, D2])
     g = new_game(rng)
     g.on_hive_scan(0.0)
     check(g.collect_uid == A1, "first target chosen")
@@ -167,8 +168,14 @@ def test_hive_rerandomises_target():
 
 def test_bloom_window_boundary():
     print("test_bloom_window_boundary")
-    # choices: A1 (morning collect), B2 (morning deliver), A1 (midday collect)
-    rng = FakeRng(choice_values=[A1, B2, A1], randint_value=1)
+    # Morning shuffle + A1 collect + B2 deliver; Midday shuffle + A1 collect (Sunflower)
+    rng = FakeRng(
+        choice_values=[
+            "Tulip", "Daisy", "Poppy", "Bluebell", A1, B2,
+            "Sunflower", "Marigold", "Rose", "Lavender", A1,
+        ],
+        randint_value=1,
+    )
     g = new_game(rng)
 
     # Turn starts in the Morning window (t=0).
@@ -192,9 +199,19 @@ def test_bloom_window_boundary():
     check(g.turn_window["map"][A1]["name"] == "Sunflower", "Midday remaps the token")
 
 
+def test_timer_waits_for_first_hive_scan():
+    print("test_timer_waits_for_first_hive_scan")
+    rng = FakeRng(choice_values=["Tulip", "Daisy", "Poppy", "Bluebell", A1])
+    g = new_game(rng)
+    g.tick(game_data.game_duration_seconds + 100)
+    check(g.state == game.WAITING_FOR_HIVE_SCAN, "timer does not expire before first hive scan")
+    g.on_hive_scan(game_data.game_duration_seconds + 100)
+    check(g.state == game.SHOWING_COLLECT_TARGET, "game starts normally on first hive scan")
+
+
 def test_timer_expiry_game_over():
     print("test_timer_expiry_game_over")
-    rng = FakeRng(choice_values=[A1])
+    rng = FakeRng(choice_values=["Tulip", "Daisy", "Poppy", "Bluebell", A1])
     g = new_game(rng)
     g.on_hive_scan(0.0)
     g.tick(game_data.game_duration_seconds)  # exactly at expiry
@@ -211,6 +228,7 @@ def main():
         test_unknown_and_hive_scans_ignored_midturn,
         test_hive_rerandomises_target,
         test_bloom_window_boundary,
+        test_timer_waits_for_first_hive_scan,
         test_timer_expiry_game_over,
     ]
     for t in tests:

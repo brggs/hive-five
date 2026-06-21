@@ -71,11 +71,13 @@ class Game:
         # Deadline for transient screens (POLLEN_*/SPIDER/VENUS); None otherwise.
         self._dwell_until = None
 
+        # Shuffled sequence of flower type names for the active bloom window.
+        # Rebuilt when the window changes or when all 4 types have been used.
+        self._type_sequence = []
+        self._sequence_window_name = None
+
     # -- lifecycle ---------------------------------------------------------
 
-    def start(self, now):
-        """Begin the game clock and wait for the first Hive scan."""
-        self.start_time = now
     def start(self):
         """Reset state and wait for the first Hive scan to start the clock."""
         self.start_time = None
@@ -104,8 +106,7 @@ class Game:
         if self.start_time is None:
             self.start_time = now
         self.turn_window = self.current_window(now)
-        flower_map = self.turn_window["map"]
-        self.collect_uid = self.rng.choice(list(flower_map.keys()))
+        self.collect_uid = self._next_collect_uid(self.turn_window)
         self.petal_count = None
         self.correct_button = None
         self.state = SHOWING_COLLECT_TARGET
@@ -173,6 +174,24 @@ class Game:
         self.correct_button = None
         self.state = failure_state
         self._dwell_until = now + FAILURE_DWELL_SECONDS
+
+    def _next_collect_uid(self, window):
+        if window["name"] != self._sequence_window_name or not self._type_sequence:
+            seen = []
+            for flower in window["map"].values():
+                if flower["name"] not in seen:
+                    seen.append(flower["name"])
+            remaining = list(seen)
+            shuffled = []
+            while remaining:
+                chosen = self.rng.choice(remaining)
+                shuffled.append(chosen)
+                remaining.remove(chosen)
+            self._type_sequence = shuffled
+            self._sequence_window_name = window["name"]
+        type_name = self._type_sequence.pop(0)
+        candidates = [uid for uid, f in window["map"].items() if f["name"] == type_name]
+        return self.rng.choice(candidates)
 
     def _flower_label(self, uid):
         flower = self.turn_window["map"][uid]
